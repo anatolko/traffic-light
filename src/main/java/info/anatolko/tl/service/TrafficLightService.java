@@ -1,8 +1,11 @@
 package info.anatolko.tl.service;
 
 import info.anatolko.tl.domain.Color;
+import info.anatolko.tl.domain.TrafficLightState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,23 +22,23 @@ public class TrafficLightService {
     private final int GREEN_LIGHT_TIMER_MIN = 30;
     private final int TIMER_DELAY = 1000;
 
-    private Color currentLight;
-    private Color nextLight;
-    private int timer;
-    private boolean buttonState;
-    private boolean onServiceMode;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public TrafficLightService() {
-        currentLight = Color.GREEN;
-        nextLight = Color.GREEN;
+    private TrafficLightState tls;
+
+    @Autowired
+    public TrafficLightService(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+
+        tls = new TrafficLightState();
     }
 
     public Color getCurrentLight() {
-        return currentLight;
+        return tls.getCurrentLight();
     }
 
     public void pushTheButton() {
-        buttonState = true;
+        tls.setButtonState(true);
         logger.info("Pushed button for RED Light");
     }
 
@@ -44,9 +47,10 @@ public class TrafficLightService {
      * @param nextLight Light that should be turned on next
      */
     private void switchLight(Color nextLight) {
-        timer = 0;
-        currentLight = Color.YELLOW;
-        this.nextLight = nextLight;
+        tls.setTimer(0);
+        tls.setCurrentLight(Color.YELLOW);
+        tls.setNextLight(nextLight);
+
         logger.info("Switching light to " + nextLight);
     }
 
@@ -56,13 +60,13 @@ public class TrafficLightService {
      * @return current status of "On Service" Mode
      */
     public boolean switchServiceMode() {
-        onServiceMode = !onServiceMode;
+        tls.setOnServiceMode(!tls.isOnServiceMode());
 
-        if (onServiceMode) {
-            currentLight = Color.YELLOW;
+        if (tls.isOnServiceMode()) {
+            tls.setCurrentLight(Color.YELLOW);;
         }
 
-        return onServiceMode;
+        return tls.isOnServiceMode();
     }
 
 
@@ -78,31 +82,33 @@ public class TrafficLightService {
      */
     @Scheduled(fixedDelay = TIMER_DELAY, initialDelay = TIMER_DELAY)
     public void tikTak () {
-        timer++;
+        tls.incTimer();
 
-        if (onServiceMode) {
-            currentLight = Color.YELLOW;
+        if (tls.isOnServiceMode()) {
+            tls.setCurrentLight(Color.YELLOW);
         } else {
-            switch (currentLight) {
+            switch (tls.getCurrentLight()) {
                 case RED:
-                    if (timer >= RED_LIGHT_TIMER_MAX) {
+                    if (tls.getTimer() >= RED_LIGHT_TIMER_MAX) {
                         switchLight(Color.GREEN);
                     }
                     break;
                 case GREEN:
-                    if (buttonState && timer >= GREEN_LIGHT_TIMER_MIN) {
+                    if (tls.isButtonState() && tls.getTimer() >= GREEN_LIGHT_TIMER_MIN) {
                         switchLight(Color.RED);
-                        buttonState = false;
+                        tls.setButtonState(false);
                     }
                     break;
                 case YELLOW:
-                    if (timer >= YELLOW_LIGHT_TIMER_MAX) {
-                        timer = 0;
-                        currentLight = nextLight;
-                        logger.info("Light is " + currentLight);
+                    if (tls.getTimer() >= YELLOW_LIGHT_TIMER_MAX) {
+                        tls.setTimer(0);
+                        tls.setCurrentLight(tls.getNextLight());
+                        logger.info("Light is " + tls.getCurrentLight());
                     }
                     break;
             }
         }
+
+        simpMessagingTemplate.convertAndSend("/tl-state", tls);
     }
 }

@@ -45,6 +45,16 @@ body{
     background-color: #c3c3c3;
 }
 
+.redLightButton.active {
+    border: 1px solid black;
+    background-color: rgba(255, 0, 0, 0.6);
+}
+
+.serviceModButton.active {
+    border: 1px solid black;
+    background-color: rgba(255, 255, 0, 0.6);
+}
+
 
 
 .red.active{
