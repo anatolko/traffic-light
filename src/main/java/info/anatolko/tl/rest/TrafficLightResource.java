@@ -4,10 +4,11 @@ import info.anatolko.tl.service.TrafficLightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
  * REST controller for working with traffic light.
@@ -34,6 +35,25 @@ public class TrafficLightResource {
     @GetMapping("/light")
     public ResponseEntity<?> getCurrentLightColor() {
         return ResponseEntity.ok(trafficLightService.getCurrentLight());
+    }
+
+    /**
+     * GET /api/tl/light/bydate?date= : get light color from log by date
+     * date should be transferred in format "2017-06-03 22:22:22"
+     *
+     * @param date of light
+     * @return 200 (OK) and info from log about light color
+     *         400 (Bad Request) if date was transferred in wrong format
+     */
+    @GetMapping("/light/bydate")
+    public ResponseEntity<?> getTraffilLightStateByDate(@RequestParam String date) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+            return ResponseEntity.ok(trafficLightService.getLightByDateTime(dateTime));
+        } catch (DateTimeParseException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     /**

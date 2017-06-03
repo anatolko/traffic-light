@@ -7,11 +7,14 @@ import info.anatolko.tl.repository.ColorLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Service for working with traffic light
@@ -46,6 +49,18 @@ public class TrafficLightService {
 
     public Color getCurrentLight() {
         return tls.getCurrentLight();
+    }
+
+    /**
+     * Get color of light from log by date
+     *
+     * @param dateTime date for searching
+     * @return nearest color for required date
+     */
+    public ColorLog getLightByDateTime(LocalDateTime dateTime) {
+        // in our case we need only one record, for it we are using small hack with page request
+        // Spring Data JPA is not supporting any kind of maxRecords parameter
+        return colorLogRepository.findByDateBeforeOrderByDateDesc(dateTime, new PageRequest(0, 1)).get(0);
     }
 
     public void pushTheButton() {

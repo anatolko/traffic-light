@@ -25,6 +25,9 @@ public class ColorLog implements Serializable{
     @Column(name = "date")
     private LocalDateTime date;
 
+    public ColorLog() {
+    }
+
     public ColorLog(Color color) {
         this.color = color;
         this.date = LocalDateTime.now();
