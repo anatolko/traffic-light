@@ -1,6 +1,8 @@
 package info.anatolko.tl.service;
 
 import info.anatolko.tl.domain.Color;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TrafficLightService {
+
+    private final Logger logger = LoggerFactory.getLogger(TrafficLightService.class);
 
     private final int RED_LIGHT_TIMER_MAX = 15;
     private final int YELLOW_LIGHT_TIMER_MAX = 2;
@@ -32,6 +36,7 @@ public class TrafficLightService {
 
     public void pushTheButton() {
         buttonState = true;
+        logger.info("Pushed button for RED Light");
     }
 
     /**
@@ -42,6 +47,7 @@ public class TrafficLightService {
         timer = 0;
         currentLight = Color.YELLOW;
         this.nextLight = nextLight;
+        logger.info("Switching light to " + nextLight);
     }
 
     /**
@@ -93,11 +99,10 @@ public class TrafficLightService {
                     if (timer >= YELLOW_LIGHT_TIMER_MAX) {
                         timer = 0;
                         currentLight = nextLight;
+                        logger.info("Light is " + currentLight);
                     }
                     break;
             }
         }
-
-        System.out.println(timer);
     }
 }

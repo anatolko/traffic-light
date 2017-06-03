@@ -1,0 +1,60 @@
+body{
+    background: white;
+    margin: 0;
+    padding: 0;
+}
+
+.tl-body {
+    margin: 15px auto;
+    width: 150px;
+    height: 300px;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+.button-panel {
+    margin: 15px auto;
+    width: 300px;
+    border-radius: 10px;
+    text-align:center;
+}
+
+.tl-light {
+    margin: 15px auto;
+    width: 75px;
+    height: 75px;
+    border: 1px solid black;
+
+    border-radius: 50%;
+    background-color: gray;
+}
+
+.btn {
+    height: 50px;
+    border: 1px solid #CCCCCC;
+    border-radius: 10px;
+
+    margin: 5px;
+    background-color: white;
+    outline:none;
+}
+
+.btn:hover {
+    cursor: pointer;
+    border: 1px solid black;
+    background-color: #c3c3c3;
+}
+
+
+
+.red.active{
+    background-color: red;
+}
+
+.yellow.active{
+    background-color: yellow;
+}
+
+.green.active{
+    background-color: green;
+}
