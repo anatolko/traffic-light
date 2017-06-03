@@ -1,13 +1,17 @@
 package info.anatolko.tl.service;
 
 import info.anatolko.tl.domain.Color;
+import info.anatolko.tl.domain.ColorLog;
 import info.anatolko.tl.domain.TrafficLightState;
+import info.anatolko.tl.repository.ColorLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Service for working with traffic light
@@ -23,14 +27,21 @@ public class TrafficLightService {
     private final int TIMER_DELAY = 1000;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ColorLogRepository colorLogRepository;
 
     private TrafficLightState tls;
 
     @Autowired
-    public TrafficLightService(SimpMessagingTemplate simpMessagingTemplate) {
+    public TrafficLightService(SimpMessagingTemplate simpMessagingTemplate, ColorLogRepository colorLogRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.colorLogRepository = colorLogRepository;
 
         tls = new TrafficLightState();
+    }
+
+    @PostConstruct
+    private void afterInit() {
+        colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
     }
 
     public Color getCurrentLight() {
@@ -51,6 +62,7 @@ public class TrafficLightService {
         tls.setCurrentLight(Color.YELLOW);
         tls.setNextLight(nextLight);
 
+        colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
         logger.info("Switching light to " + nextLight);
     }
 
@@ -63,7 +75,10 @@ public class TrafficLightService {
         tls.setOnServiceMode(!tls.isOnServiceMode());
 
         if (tls.isOnServiceMode()) {
-            tls.setCurrentLight(Color.YELLOW);;
+            tls.setCurrentLight(Color.YELLOW);
+
+            colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
+            logger.info("Light is " + tls.getCurrentLight());
         }
 
         return tls.isOnServiceMode();
@@ -103,6 +118,8 @@ public class TrafficLightService {
                     if (tls.getTimer() >= YELLOW_LIGHT_TIMER_MAX) {
                         tls.setTimer(0);
                         tls.setCurrentLight(tls.getNextLight());
+
+                        colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
                         logger.info("Light is " + tls.getCurrentLight());
                     }
                     break;

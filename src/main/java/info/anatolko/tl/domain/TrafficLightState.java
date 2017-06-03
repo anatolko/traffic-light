@@ -38,7 +38,7 @@ public class TrafficLightState {
     }
 
     /**
-     * Add 1 secind to timer.
+     * Add 1 second to timer.
      *
      * @return current timer
      */
