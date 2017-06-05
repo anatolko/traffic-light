@@ -17,6 +17,16 @@ public class TrafficLightState {
         return currentLight;
     }
 
+
+    /**
+     * Get current light in ColorLog format.
+     *
+     * @return current light in ColorLog format
+     */
+    public ColorLog getCurrentColorLog() {
+        return new ColorLog(currentLight);
+    }
+
     public void setCurrentLight(Color currentLight) {
         this.currentLight = currentLight;
     }

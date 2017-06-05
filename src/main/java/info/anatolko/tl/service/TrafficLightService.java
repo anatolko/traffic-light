@@ -44,7 +44,7 @@ public class TrafficLightService {
 
     @PostConstruct
     private void afterInit() {
-        colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
+        colorLogRepository.save(tls.getCurrentColorLog());
     }
 
     public Color getCurrentLight() {
@@ -77,7 +77,7 @@ public class TrafficLightService {
         tls.setCurrentLight(Color.YELLOW);
         tls.setNextLight(nextLight);
 
-        colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
+        colorLogRepository.save(tls.getCurrentColorLog());
         logger.info("Switching light to " + nextLight);
     }
 
@@ -92,7 +92,7 @@ public class TrafficLightService {
         if (tls.isOnServiceMode()) {
             tls.setCurrentLight(Color.YELLOW);
 
-            colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
+            colorLogRepository.save(tls.getCurrentColorLog());
             logger.info("Light is " + tls.getCurrentLight());
         }
 
@@ -134,7 +134,7 @@ public class TrafficLightService {
                         tls.setTimer(0);
                         tls.setCurrentLight(tls.getNextLight());
 
-                        colorLogRepository.save(new ColorLog(tls.getCurrentLight()));
+                        colorLogRepository.save(tls.getCurrentColorLog());
                         logger.info("Light is " + tls.getCurrentLight());
                     }
                     break;
