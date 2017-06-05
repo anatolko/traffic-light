@@ -1,5 +1,7 @@
 package info.anatolko.tl.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class TrafficLightState {
 
     private Color currentLight;
@@ -23,6 +25,7 @@ public class TrafficLightState {
      *
      * @return current light in ColorLog format
      */
+    @JsonIgnore
     public ColorLog getCurrentColorLog() {
         return new ColorLog(currentLight);
     }
